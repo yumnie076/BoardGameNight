@@ -1,0 +1,264 @@
+# Azure DevOps CI/CD Pipeline for BoardGameNight
+# Automatically builds, tests, and deploys to Azure on push
+
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '8.0.x'
+  webAppProject: 'src/BoardGameNight.WebApp/BoardGameNight.WebApp.csproj'
+  apiProject: 'src/BoardGameNight.API/BoardGameNight.API.csproj'
+  testProject: 'tests/BoardGameNight.Domain.Tests/BoardGameNight.Domain.Tests.csproj'
+  infraProject: 'src/BoardGameNight.Infrastructure/BoardGameNight.Infrastructure.csproj'
+  
+  # Azure Web App names - vervang deze met jouw Azure resources
+  webAppName: 'boardgamenight-webapp'
+  apiAppName: 'boardgamenight-api'
+  azureSubscription: 'Azure-Subscription' # Vervang met jouw service connection naam
+
+stages:
+# ============================================
+# STAGE 1: BUILD & TEST
+# ============================================
+- stage: Build
+  displayName: 'Build & Test'
+  jobs:
+  - job: BuildAndTest
+    displayName: 'Build, Test & Publish'
+    steps:
+    
+    # .NET SDK installeren
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK $(dotnetVersion)'
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetVersion)'
+
+    # NuGet packages herstellen
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore NuGet Packages'
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+
+    # Solution bouwen
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Solution'
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
+
+    # Unit tests uitvoeren
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Unit Tests'
+      inputs:
+        command: 'test'
+        projects: '$(testProject)'
+        arguments: '--configuration $(buildConfiguration) --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory $(Agent.TempDirectory)'
+      continueOnError: false
+
+    # Test resultaten publiceren
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*.trx'
+        searchFolder: '$(Agent.TempDirectory)'
+      condition: succeededOrFailed()
+
+    # Code coverage publiceren
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish Code Coverage'
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+      condition: succeededOrFailed()
+
+    # WebApp publiceren
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish WebApp'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '$(webAppProject)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/webapp --no-build'
+        zipAfterPublish: true
+
+    # API publiceren
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish API'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '$(apiProject)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api --no-build'
+        zipAfterPublish: true
+
+    # EF Core tools installeren voor migrations
+    - task: DotNetCoreCLI@2
+      displayName: 'Install EF Core Tools'
+      inputs:
+        command: 'custom'
+        custom: 'tool'
+        arguments: 'install --global dotnet-ef'
+
+    # Migration SQL script genereren
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate Migration Script (App DB)'
+      inputs:
+        command: 'custom'
+        custom: 'ef'
+        arguments: 'migrations script --idempotent --project $(infraProject) --startup-project $(webAppProject) --context ApplicationDbContext --output $(Build.ArtifactStagingDirectory)/migrations/app-migration.sql'
+
+    # Migration SQL script genereren voor Identity
+    - task: DotNetCoreCLI@2
+      displayName: 'Generate Migration Script (Identity DB)'
+      inputs:
+        command: 'custom'
+        custom: 'ef'
+        arguments: 'migrations script --idempotent --project $(infraProject) --startup-project $(webAppProject) --context ApplicationIdentityDbContext --output $(Build.ArtifactStagingDirectory)/migrations/identity-migration.sql'
+
+    # Artifacts publiceren
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+# ============================================
+# STAGE 2: DEPLOY TO AZURE (Development)
+# ============================================
+- stage: DeployDev
+  displayName: 'Deploy to Development'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployWebApp
+    displayName: 'Deploy WebApp to Azure'
+    environment: 'Development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          # Database migratie uitvoeren (App DB)
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Run App DB Migrations'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              ServerName: '$(sqlServerName).database.windows.net'
+              DatabaseName: '$(appDatabaseName)'
+              SqlUsername: '$(sqlAdminUser)'
+              SqlPassword: '$(sqlAdminPassword)'
+              deployType: 'SqlTask'
+              SqlFile: '$(System.ArtifactsDirectory)/drop/migrations/app-migration.sql'
+
+          # Database migratie uitvoeren (Identity DB)
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Run Identity DB Migrations'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              ServerName: '$(sqlServerName).database.windows.net'
+              DatabaseName: '$(identityDatabaseName)'
+              SqlUsername: '$(sqlAdminUser)'
+              SqlPassword: '$(sqlAdminPassword)'
+              deployType: 'SqlTask'
+              SqlFile: '$(System.ArtifactsDirectory)/drop/migrations/identity-migration.sql'
+
+          # WebApp deployen
+          - task: AzureWebApp@1
+            displayName: 'Deploy WebApp'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(webAppName)-dev'
+              package: '$(System.ArtifactsDirectory)/drop/webapp/*.zip'
+
+          # API deployen
+          - task: AzureWebApp@1
+            displayName: 'Deploy API'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(apiAppName)-dev'
+              package: '$(System.ArtifactsDirectory)/drop/api/*.zip'
+
+# ============================================
+# STAGE 3: DEPLOY TO AZURE (Production)
+# ============================================
+- stage: DeployProd
+  displayName: 'Deploy to Production'
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployWebApp
+    displayName: 'Deploy WebApp to Azure Production'
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          # Database migratie uitvoeren (App DB)
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Run App DB Migrations'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              ServerName: '$(sqlServerName).database.windows.net'
+              DatabaseName: '$(appDatabaseName)'
+              SqlUsername: '$(sqlAdminUser)'
+              SqlPassword: '$(sqlAdminPassword)'
+              deployType: 'SqlTask'
+              SqlFile: '$(System.ArtifactsDirectory)/drop/migrations/app-migration.sql'
+
+          # Database migratie uitvoeren (Identity DB)
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Run Identity DB Migrations'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              ServerName: '$(sqlServerName).database.windows.net'
+              DatabaseName: '$(identityDatabaseName)'
+              SqlUsername: '$(sqlAdminUser)'
+              SqlPassword: '$(sqlAdminPassword)'
+              deployType: 'SqlTask'
+              SqlFile: '$(System.ArtifactsDirectory)/drop/migrations/identity-migration.sql'
+
+          # WebApp deployen
+          - task: AzureWebApp@1
+            displayName: 'Deploy WebApp'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(webAppName)'
+              package: '$(System.ArtifactsDirectory)/drop/webapp/*.zip'
+
+          # API deployen
+          - task: AzureWebApp@1
+            displayName: 'Deploy API'
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appType: 'webApp'
+              appName: '$(apiAppName)'
+              package: '$(System.ArtifactsDirectory)/drop/api/*.zip'

@@ -1,0 +1,11 @@
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\bin\Debug\net8.0\BoardGameNight.Domain.deps.json
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\bin\Debug\net8.0\BoardGameNight.Domain.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\bin\Debug\net8.0\BoardGameNight.Domain.pdb
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.AssemblyInfoInputs.cache
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.AssemblyInfo.cs
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.csproj.CoreCompileInputs.cache
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\refint\BoardGameNight.Domain.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\BoardGameNight.Domain.pdb
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Domain\obj\Debug\net8.0\ref\BoardGameNight.Domain.dll

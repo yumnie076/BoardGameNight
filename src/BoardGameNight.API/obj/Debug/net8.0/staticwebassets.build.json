@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "EQ3+eebtzPbBqRtGHvqA5l6cPhxynHgapsGUq3MdRQ0=",
+  "Source": "BoardGameNight.API",
+  "BasePath": "_content/BoardGameNight.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

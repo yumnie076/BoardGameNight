@@ -1,0 +1,183 @@
+@model GameNightDto
+@{
+    ViewData["Title"] = "Bordspellenavond Details";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header @(Model.IsAdultOnly ? "bg-danger" : "bg-primary") text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    Bordspellenavond op @Model.DateTime.ToString("dddd d MMMM yyyy")
+                    @if (Model.IsAdultOnly) { <span class="badge bg-light text-danger ms-2">18+</span> }
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><i class="bi bi-clock me-2"></i><strong>Tijd:</strong> @Model.DateTime.ToString("HH:mm")</p>
+                        <p><i class="bi bi-geo-alt me-2"></i><strong>Adres:</strong> @Model.FullAddress</p>
+                        <p><i class="bi bi-people me-2"></i><strong>Spelers:</strong> @Model.CurrentPlayerCount / @Model.MaxPlayers</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><i class="bi bi-person me-2"></i><strong>Organisator:</strong> @Model.OrganizerName</p>
+                        @if (Model.OrganizerAverageRating.HasValue)
+                        {
+                            <p><i class="bi bi-star me-2"></i><strong>Rating:</strong> @Model.OrganizerAverageRating.Value.ToString("0.0") / 5</p>
+                        }
+                        <p><i class="bi bi-calendar-check me-2"></i><strong>Avonden georganiseerd:</strong> @Model.OrganizerGameNightCount</p>
+                    </div>
+                </div>
+
+                @if (Model.IsPotluck)
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-basket me-2"></i><strong>Potluck!</strong> Neem eten en/of drinken mee.
+                    </div>
+                }
+
+                @if (!Model.HasPassed && ViewBag.CurrentPersonId != null && ViewBag.CurrentPersonId != Model.OrganizerId)
+                {
+                    @if ((bool)ViewBag.CanJoin)
+                    {
+                        <form asp-action="Register" asp-route-id="@Model.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-2"></i>Inschrijven</button>
+                        </form>
+                    }
+                    else if (Model.Participants.Any(p => p.PersonId == (int)ViewBag.CurrentPersonId))
+                    {
+                        <form asp-action="Unregister" asp-route-id="@Model.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-warning"><i class="bi bi-x-circle me-2"></i>Uitschrijven</button>
+                        </form>
+                    }
+                }
+
+                @if (ViewBag.CurrentPersonId != null && ViewBag.CurrentPersonId == Model.OrganizerId && !Model.HasPassed)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil me-2"></i>Bewerken</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash me-2"></i>Verwijderen</a>
+                }
+            </div>
+        </div>
+
+        <!-- Bordspellen -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-controller me-2"></i>Bordspellen (@Model.BoardGames.Count)</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.BoardGames.Any())
+                {
+                    <p class="text-muted">Nog geen spellen toegevoegd.</p>
+                }
+                else
+                {
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        @foreach (var game in Model.BoardGames)
+                        {
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">@game.Name @(game.IsAdultOnly ? Html.Raw("<span class='badge bg-danger'>18+</span>") : Html.Raw(""))</h6>
+                                        <p class="card-text small">@game.Description</p>
+                                        <span class="badge bg-info">@game.Genre</span>
+                                        <span class="badge bg-secondary">@game.PlayerCountDisplay</span>
+                                        <span class="badge bg-secondary">@game.DurationDisplay</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Eten & Drinken -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-cup-hot me-2"></i>Eten & Drinken (@Model.FoodItems.Count)</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.FoodItems.Any())
+                {
+                    <p class="text-muted">Nog geen eten/drinken toegevoegd.</p>
+                }
+                else
+                {
+                    <ul class="list-group">
+                        @foreach (var food in Model.FoodItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@food.Name</strong>
+                                    @if (!string.IsNullOrEmpty(food.BroughtByPersonName))
+                                    {
+                                        <small class="text-muted"> - door @food.BroughtByPersonName</small>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @if (Model.IsPotluck && ViewBag.CurrentPersonId != null && Model.Participants.Any(p => p.PersonId == (int)ViewBag.CurrentPersonId))
+                {
+                    <hr />
+                    <h6>Voeg eten/drinken toe:</h6>
+                    <form asp-action="AddFoodItem" method="post">
+                        <input type="hidden" name="GameNightId" value="@Model.Id" />
+                        <div class="row g-2">
+                            <div class="col-md-8">
+                                <input type="text" name="Name" class="form-control" placeholder="Naam" required />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus"></i> Toevoegen</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Deelnemers -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Deelnemers (@Model.Participants.Count)</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var p in Model.Participants)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@p.Name</span>
+                        <span class="badge bg-secondary">@p.TotalShows shows / @p.TotalNoShows no-shows</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Reviews -->
+        @if (Model.HasPassed)
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-star me-2"></i>Reviews (@Model.Reviews.Count)</h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="mb-3 pb-3 border-bottom">
+                            <strong>@review.ReviewerName</strong> - 
+                            @for (int i = 0; i < review.Rating; i++) { <i class="bi bi-star-fill text-warning"></i> }
+                            <p class="mb-0 small">@review.ReviewText</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Terug naar overzicht</a>

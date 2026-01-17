@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Avans\\jaar 2\\periode 1\\BoardGameNight-Complete\\BoardGameNight\\src\\BoardGameNight.WebApp\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BoardGameNight.WebApp.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BoardGameNight.WebApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.BoardGameNight.WebApp.props",
+      "PackagePath": "build\\BoardGameNight.WebApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.BoardGameNight.WebApp.props",
+      "PackagePath": "buildMultiTargeting\\BoardGameNight.WebApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.BoardGameNight.WebApp.props",
+      "PackagePath": "buildTransitive\\BoardGameNight.WebApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

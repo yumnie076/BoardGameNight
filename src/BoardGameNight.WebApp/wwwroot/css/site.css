@@ -1,0 +1,19 @@
+/* Bordspellenavonden - Custom CSS */
+html { font-size: 14px; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.card { transition: transform 0.2s; }
+.card:hover { transform: translateY(-2px); }
+
+.navbar-brand { font-weight: bold; }
+
+.progress { border-radius: 10px; }
+.progress-bar { border-radius: 10px; }
+
+.badge { font-size: 0.75em; }
+
+footer { margin-top: auto; }

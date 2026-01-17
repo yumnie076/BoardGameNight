@@ -1,0 +1,101 @@
+@model IEnumerable<GameNightListDto>
+@{
+    ViewData["Title"] = "Welkom";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">
+        <i class="bi bi-dice-5-fill text-primary me-3"></i>
+        Bordspellenavonden
+    </h1>
+    <p class="lead">Samen spelen, samen leren, samen plezier maken!</p>
+    <hr class="my-4" />
+    <p>Vind bordspellenavonden bij jou in de buurt of organiseer er zelf een.</p>
+    @if (!(User.Identity?.IsAuthenticated ?? false))
+    {
+        <a class="btn btn-primary btn-lg me-2" asp-controller="Account" asp-action="Register">
+            <i class="bi bi-person-plus me-2"></i>Registreer nu
+        </a>
+        <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Inloggen
+        </a>
+    }
+    else
+    {
+        <a class="btn btn-primary btn-lg" asp-controller="GameNight" asp-action="Create">
+            <i class="bi bi-plus-circle me-2"></i>Organiseer een avond
+        </a>
+    }
+</div>
+
+<h2 class="mb-4">
+    <i class="bi bi-calendar-event me-2"></i>Aankomende Bordspellenavonden
+</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Er zijn momenteel geen aankomende bordspellenavonden gepland.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var gameNight in Model.Take(6))
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header @(gameNight.IsAdultOnly ? "bg-danger text-white" : "bg-primary text-white")">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-calendar3 me-2"></i>
+                                @gameNight.DateTime.ToString("dd MMM yyyy")
+                            </span>
+                            @if (gameNight.IsAdultOnly)
+                            {
+                                <span class="badge bg-light text-danger">18+</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-geo-alt me-2"></i>@gameNight.City
+                        </h5>
+                        <p class="card-text">
+                            <i class="bi bi-clock me-2"></i>@gameNight.DateTime.ToString("HH:mm")<br />
+                            <i class="bi bi-person me-2"></i>Organisator: @gameNight.OrganizerName<br />
+                            <i class="bi bi-controller me-2"></i>@gameNight.BoardGameCount spellen
+                        </p>
+                        <div class="progress mb-3" style="height: 20px;">
+                            @{
+                                var percentage = gameNight.MaxPlayers > 0 
+                                    ? (int)((double)gameNight.CurrentPlayerCount / gameNight.MaxPlayers * 100) 
+                                    : 0;
+                                var barClass = gameNight.IsFull ? "bg-danger" : (percentage > 75 ? "bg-warning" : "bg-success");
+                            }
+                            <div class="progress-bar @barClass" style="width: @percentage%">
+                                @gameNight.CurrentPlayerCount / @gameNight.MaxPlayers spelers
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-controller="GameNight" asp-action="Details" asp-route-id="@gameNight.Id" 
+                           class="btn btn-outline-primary w-100">
+                            <i class="bi bi-eye me-2"></i>Bekijk details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Count() > 6)
+    {
+        <div class="text-center mt-4">
+            <a asp-controller="GameNight" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-right me-2"></i>Bekijk alle avonden
+            </a>
+        </div>
+    }
+}

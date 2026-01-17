@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "BoardGameNight.Application/1.0.0": {
+        "dependencies": {
+          "BoardGameNight.Domain": "1.0.0"
+        },
+        "runtime": {
+          "BoardGameNight.Application.dll": {}
+        }
+      },
+      "BoardGameNight.Domain/1.0.0": {
+        "runtime": {
+          "BoardGameNight.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "BoardGameNight.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "BoardGameNight.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

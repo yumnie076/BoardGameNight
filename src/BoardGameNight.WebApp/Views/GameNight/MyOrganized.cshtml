@@ -1,0 +1,46 @@
+@model IEnumerable<GameNightListDto>
+@{
+    ViewData["Title"] = "Mijn Georganiseerde Avonden";
+}
+
+<h1><i class="bi bi-star me-2"></i>Mijn Georganiseerde Avonden</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Nieuwe avond organiseren</a>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Je hebt nog geen bordspellenavonden georganiseerd.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-primary">
+                <tr><th>Datum</th><th>Tijd</th><th>Stad</th><th>Spelers</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var gn in Model)
+                {
+                    <tr>
+                        <td>@gn.DateTime.ToString("dd-MM-yyyy")</td>
+                        <td>@gn.DateTime.ToString("HH:mm")</td>
+                        <td>@gn.City</td>
+                        <td>@gn.CurrentPlayerCount / @gn.MaxPlayers</td>
+                        <td>
+                            @if (gn.DateTime < DateTime.Now) { <span class="badge bg-secondary">Afgelopen</span> }
+                            else if (gn.IsFull) { <span class="badge bg-danger">Vol</span> }
+                            else { <span class="badge bg-success">Open</span> }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@gn.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            @if (gn.DateTime > DateTime.Now && gn.CurrentPlayerCount == 0)
+                            {
+                                <a asp-action="Edit" asp-route-id="@gn.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

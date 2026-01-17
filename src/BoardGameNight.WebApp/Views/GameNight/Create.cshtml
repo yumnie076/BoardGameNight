@@ -1,0 +1,87 @@
+@model CreateGameNightViewModel
+@{
+    ViewData["Title"] = "Nieuwe Bordspellenavond";
+}
+
+<h1><i class="bi bi-plus-circle me-2"></i>Nieuwe Bordspellenavond</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">Wanneer en waar?</div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DateTime" class="form-label"></label>
+                            <input asp-for="DateTime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="DateTime" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MaxPlayers" class="form-label"></label>
+                            <input asp-for="MaxPlayers" class="form-control" />
+                            <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Street" class="form-label"></label>
+                            <input asp-for="Street" class="form-control" />
+                            <span asp-validation-for="Street" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="HouseNumber" class="form-label"></label>
+                            <input asp-for="HouseNumber" class="form-control" />
+                            <span asp-validation-for="HouseNumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">Opties</div>
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        <input asp-for="IsAdultOnly" class="form-check-input" />
+                        <label asp-for="IsAdultOnly" class="form-check-label"></label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input asp-for="IsPotluck" class="form-check-input" />
+                        <label asp-for="IsPotluck" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">Bordspellen</div>
+                <div class="card-body">
+                    @foreach (var game in Model.AvailableBoardGames)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" name="SelectedBoardGameIds" value="@game.Id" class="form-check-input" id="game_@game.Id" />
+                            <label class="form-check-label" for="game_@game.Id">
+                                @game.Name @(game.IsAdultOnly ? Html.Raw("<span class='badge bg-danger'>18+</span>") : Html.Raw(""))
+                                <small class="text-muted">(@game.Genre, @game.PlayerCountDisplay)</small>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-2"></i>Aanmaken</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Annuleren</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

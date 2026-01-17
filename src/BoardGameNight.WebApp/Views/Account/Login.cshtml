@@ -1,0 +1,32 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "Inloggen"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white"><h4 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Inloggen</h4></div>
+            <div class="card-body">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Inloggen</button>
+                </form>
+                <hr />
+                <p class="text-center mb-0">Nog geen account? <a asp-action="Register">Registreer hier</a></p>
+            </div>
+        </div>
+    </div>
+</div>

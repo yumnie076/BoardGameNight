@@ -1,0 +1,38 @@
+@model IEnumerable<GameNightListDto>
+@{
+    ViewData["Title"] = "Alle Bordspellenavonden";
+}
+
+<h1 class="mb-4"><i class="bi bi-calendar-event me-2"></i>Alle Bordspellenavonden</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Er zijn momenteel geen aankomende bordspellenavonden gepland.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Datum</th><th>Tijd</th><th>Stad</th><th>Organisator</th><th>Spellen</th><th>Spelers</th><th>18+</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var gn in Model)
+                {
+                    <tr class="@(gn.IsFull ? "table-secondary" : "")">
+                        <td>@gn.DateTime.ToString("dd-MM-yyyy")</td>
+                        <td>@gn.DateTime.ToString("HH:mm")</td>
+                        <td>@gn.City</td>
+                        <td>@gn.OrganizerName</td>
+                        <td>@gn.BoardGameCount</td>
+                        <td><span class="badge @(gn.IsFull ? "bg-danger" : "bg-success")">@gn.CurrentPlayerCount / @gn.MaxPlayers</span></td>
+                        <td>@(gn.IsAdultOnly ? Html.Raw("<span class='badge bg-danger'>18+</span>") : Html.Raw(""))</td>
+                        <td><a asp-action="Details" asp-route-id="@gn.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

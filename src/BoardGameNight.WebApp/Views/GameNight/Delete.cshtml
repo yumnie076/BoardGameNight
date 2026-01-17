@@ -1,0 +1,110 @@
+@model BoardGameNight.Application.DTOs.GameNightDto
+@{
+    ViewData["Title"] = "Bordspellenavond Verwijderen";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Alle Avonden</a></li>
+            <li class="breadcrumb-item"><a asp-action="MyOrganized">Mijn Georganiseerde</a></li>
+            <li class="breadcrumb-item active">Verwijderen</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Bordspellenavond Verwijderen
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        <strong>Let op!</strong> Deze actie kan niet ongedaan worden gemaakt.
+                    </div>
+
+                    <p class="lead">Weet je zeker dat je de volgende bordspellenavond wilt verwijderen?</p>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                @Model.DateTime.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("nl-NL"))
+                            </h5>
+                            <p class="card-text mb-1">
+                                <i class="bi bi-clock me-2"></i>
+                                @Model.DateTime.ToString("HH:mm") uur
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="bi bi-geo-alt me-2"></i>
+                                @Model.FullAddress
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="bi bi-people me-2"></i>
+                                Max @Model.MaxPlayers spelers
+                            </p>
+                            @if (Model.IsAdultOnly)
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>18+
+                                </span>
+                            }
+                            @if (Model.IsPotluck)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-basket me-1"></i>Potluck
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.BoardGames.Any())
+                    {
+                        <h6><i class="bi bi-dice-5 me-2"></i>Geselecteerde Spellen:</h6>
+                        <ul class="list-unstyled mb-4">
+                            @foreach (var game in Model.BoardGames)
+                            {
+                                <li>
+                                    <i class="bi bi-check text-success me-1"></i>
+                                    @game.Name
+                                    @if (game.IsAdultOnly)
+                                    {
+                                        <span class="badge bg-danger ms-1">18+</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                    @if (Model.Participants.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle me-2"></i>
+                            <strong>Kan niet verwijderen!</strong> Er zijn al @Model.Participants.Count speler(s) ingeschreven.
+                        </div>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Terug naar Details
+                        </a>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div class="d-flex justify-content-between">
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>Annuleren
+                                </a>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash me-1"></i>Definitief Verwijderen
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

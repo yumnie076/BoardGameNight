@@ -1,0 +1,648 @@
+{
+	"info": {
+		"_postman_id": "boardgamenight-api-collection",
+		"name": "BoardGameNight API",
+		"description": "Complete API test collection for BoardGameNight application.\n\n**Setup:**\n1. Set de `baseUrl` variable naar jouw Azure API URL\n2. Run eerst 'Login' om een token te krijgen\n3. De token wordt automatisch opgeslagen voor volgende requests\n\n**RMM Level 2 Endpoints:**\n- GET, POST, PUT, DELETE operaties\n- Correcte HTTP status codes\n- Resource-based URLs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "gameNightId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "personId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (Get Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', jsonData.token);",
+									"    pm.test('Token received and saved', function() {",
+									"        pm.expect(jsonData.token).to.not.be.empty;",
+									"    });",
+									"}",
+									"",
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"jan@example.com\",\n    \"password\": \"Test123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login to get JWT token. Token is automatically saved for subsequent requests."
+					},
+					"response": []
+				},
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 or 400', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"Test123!\",\n    \"gender\": \"M\",\n    \"dateOfBirth\": \"1990-05-15\",\n    \"street\": \"Teststraat\",\n    \"houseNumber\": \"1\",\n    \"city\": \"Amsterdam\",\n    \"dietaryPreferences\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GameNights (REST RMM2)",
+			"item": [
+				{
+					"name": "GET All GameNights",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Response time is less than 500ms', function() {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"// Save first gameNight ID for next tests",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.length > 0) {",
+									"    pm.collectionVariables.set('gameNightId', jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights"]
+						},
+						"description": "GET all upcoming game nights (RMM Level 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "GET GameNight by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 404', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test('GameNight has required properties', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('id');",
+									"        pm.expect(jsonData).to.have.property('dateTime');",
+									"        pm.expect(jsonData).to.have.property('maxPlayers');",
+									"        pm.expect(jsonData).to.have.property('organizerName');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/{{gameNightId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "{{gameNightId}}"]
+						},
+						"description": "GET single game night by ID (RMM Level 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 or 400', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 400]);",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    pm.test('Response has Location header or ID', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('id');",
+									"        pm.collectionVariables.set('gameNightId', jsonData.id);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": {{personId}},\n    \"gameNight\": {\n        \"dateTime\": \"2025-02-15T19:00:00\",\n        \"street\": \"Teststraat\",\n        \"houseNumber\": \"42\",\n        \"city\": \"Amsterdam\",\n        \"maxPlayers\": 6,\n        \"isAdultOnly\": false,\n        \"isPotluck\": true,\n        \"availableDietaryOptions\": 5,\n        \"boardGameIds\": [1, 2]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights"]
+						},
+						"description": "POST create new game night (RMM Level 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Update GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 400', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": {{personId}},\n    \"gameNight\": {\n        \"id\": {{gameNightId}},\n        \"dateTime\": \"2025-02-20T20:00:00\",\n        \"street\": \"Nieuwe Straat\",\n        \"houseNumber\": \"99\",\n        \"city\": \"Rotterdam\",\n        \"maxPlayers\": 8,\n        \"isAdultOnly\": false,\n        \"isPotluck\": false,\n        \"availableDietaryOptions\": 1,\n        \"boardGameIds\": [1]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/{{gameNightId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "{{gameNightId}}"]
+						},
+						"description": "PUT update existing game night (RMM Level 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 or 400', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([204, 400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/{{gameNightId}}?organizerId={{personId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "{{gameNightId}}"],
+							"query": [
+								{
+									"key": "organizerId",
+									"value": "{{personId}}"
+								}
+							]
+						},
+						"description": "DELETE game night (RMM Level 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Register for GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 400', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test('Response has success message', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('message');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"personId\": {{personId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/{{gameNightId}}/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "{{gameNightId}}", "register"]
+						},
+						"description": "POST register participant for game night (US_04)"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Unregister from GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204', function() {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/{{gameNightId}}/register?personId={{personId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "{{gameNightId}}", "register"],
+							"query": [
+								{
+									"key": "personId",
+									"value": "{{personId}}"
+								}
+							]
+						},
+						"description": "DELETE unregister participant from game night"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GraphQL",
+			"item": [
+				{
+					"name": "Query - Get All GameNights",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has data property', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"query { gameNights { id dateTime city maxPlayers currentPlayerCount isFull isAdultOnly organizerName boardGameCount } }\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "GraphQL query to get all game nights"
+					},
+					"response": []
+				},
+				{
+					"name": "Query - Get GameNight by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has gameNight data', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('gameNight');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"query($id: Int!) { gameNight(id: $id) { id dateTime fullAddress maxPlayers isAdultOnly isPotluck organizerName boardGames { id name genre isAdultOnly } participants { personId name } } }\",\n    \"variables\": {\n        \"id\": 1\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "GraphQL query to get single game night with details"
+					},
+					"response": []
+				},
+				{
+					"name": "Query - Get All BoardGames",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has boardGames data', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('boardGames');",
+									"    pm.expect(jsonData.data.boardGames).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"query { boardGames { id name description genre gameType isAdultOnly minPlayers maxPlayers } }\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "GraphQL query to get all board games"
+					},
+					"response": []
+				},
+				{
+					"name": "Mutation - Register for GameNight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has registerForGameNight result', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('registerForGameNight');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"mutation($personId: Int!, $gameNightId: Int!) { registerForGameNight(personId: $personId, gameNightId: $gameNightId) }\",\n    \"variables\": {\n        \"personId\": 2,\n        \"gameNightId\": 1\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "GraphQL mutation to register for a game night"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Handling Tests",
+			"item": [
+				{
+					"name": "GET Non-existent GameNight (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function() {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights/99999",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights", "99999"]
+						},
+						"description": "Test 404 response for non-existent resource"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Invalid GameNight (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function() {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Response has error message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"organizerId\": 1,\n    \"gameNight\": {\n        \"dateTime\": \"2020-01-01T19:00:00\",\n        \"street\": \"Test\",\n        \"houseNumber\": \"1\",\n        \"city\": \"Test\",\n        \"maxPlayers\": 1,\n        \"isAdultOnly\": false,\n        \"isPotluck\": false,\n        \"availableDietaryOptions\": 0,\n        \"boardGameIds\": []\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gamenights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "gamenights"]
+						},
+						"description": "Test 400 response for invalid data (past date, less than 2 players)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

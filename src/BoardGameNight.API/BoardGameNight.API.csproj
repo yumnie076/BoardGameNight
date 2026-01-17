@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>387bd193-d444-4251-9624-770b5262a37c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BoardGameNight.Domain\BoardGameNight.Domain.csproj" />
+    <ProjectReference Include="..\BoardGameNight.Application\BoardGameNight.Application.csproj" />
+    <ProjectReference Include="..\BoardGameNight.Infrastructure\BoardGameNight.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

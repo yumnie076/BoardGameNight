@@ -1,0 +1,194 @@
+@model BoardGameNight.WebApp.Models.EditGameNightViewModel
+@{
+    ViewData["Title"] = "Bordspellenavond Bewerken";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Alle Avonden</a></li>
+            <li class="breadcrumb-item"><a asp-action="MyOrganized">Mijn Georganiseerde</a></li>
+            <li class="breadcrumb-item active">Bewerken</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Bordspellenavond Bewerken
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        @* Datum en Tijd *@
+                        <div class="mb-3">
+                            <label asp-for="DateTime" class="form-label">
+                                <i class="bi bi-calendar-event me-1"></i>Datum en Tijd
+                            </label>
+                            <input asp-for="DateTime" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="DateTime" class="text-danger"></span>
+                        </div>
+
+                        @* Adres *@
+                        <h5 class="mt-4 mb-3">
+                            <i class="bi bi-geo-alt me-1"></i>Locatie
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Street" class="form-label">Straat</label>
+                                <input asp-for="Street" class="form-control" placeholder="Hoofdstraat" />
+                                <span asp-validation-for="Street" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="HouseNumber" class="form-label">Huisnummer</label>
+                                <input asp-for="HouseNumber" class="form-control" placeholder="123" />
+                                <span asp-validation-for="HouseNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="City" class="form-label">Stad</label>
+                                <input asp-for="City" class="form-control" placeholder="Amsterdam" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @* Max Spelers *@
+                        <div class="mb-3">
+                            <label asp-for="MaxPlayers" class="form-label">
+                                <i class="bi bi-people me-1"></i>Maximum aantal spelers
+                            </label>
+                            <input asp-for="MaxPlayers" type="number" min="2" max="50" class="form-control" />
+                            <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                        </div>
+
+                        @* Opties *@
+                        <h5 class="mt-4 mb-3">
+                            <i class="bi bi-gear me-1"></i>Opties
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsAdultOnly" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsAdultOnly" class="form-check-label">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>Alleen 18+ (wordt automatisch aan als je een 18+ spel toevoegt)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsPotluck" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsPotluck" class="form-check-label">
+                                        <i class="bi bi-basket me-1"></i>Potluck (iedereen neemt eten mee)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Dieetopties *@
+                        <h5 class="mt-4 mb-3">
+                            <i class="bi bi-cup-hot me-1"></i>Beschikbare Dieetopties
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietVegetarian" 
+                                           name="AvailableDietaryOptions" value="1"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.Vegetarian) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietVegetarian">🥬 Vegetarisch</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietVegan"
+                                           name="AvailableDietaryOptions" value="2"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.Vegan) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietVegan">🌱 Veganistisch</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietLactoseFree"
+                                           name="AvailableDietaryOptions" value="4"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.LactoseFree) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietLactoseFree">🥛 Lactosevrij</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietNutFree"
+                                           name="AvailableDietaryOptions" value="8"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.NutFree) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietNutFree">🥜 Notenvrij</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietAlcoholFree"
+                                           name="AvailableDietaryOptions" value="16"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.AlcoholFree) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietAlcoholFree">🚫🍺 Alcoholvrij</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietHalal"
+                                           name="AvailableDietaryOptions" value="32"
+                                           @(Model.AvailableDietaryOptions.HasFlag(BoardGameNight.Domain.Enums.DietaryPreference.Halal) ? "checked" : "") />
+                                    <label class="form-check-label" for="dietHalal">🍖 Halal</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Bordspellen *@
+                        <h5 class="mt-4 mb-3">
+                            <i class="bi bi-dice-5 me-1"></i>Bordspellen Selecteren
+                        </h5>
+                        <div class="row">
+                            @if (Model.AvailableBoardGames != null)
+                            {
+                                @foreach (var game in Model.AvailableBoardGames)
+                                {
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" 
+                                                   name="SelectedBoardGameIds" 
+                                                   value="@game.Id"
+                                                   id="game_@game.Id"
+                                                   @(Model.SelectedBoardGameIds?.Contains(game.Id) == true ? "checked" : "") />
+                                            <label class="form-check-label" for="game_@game.Id">
+                                                @game.Name
+                                                @if (game.IsAdultOnly)
+                                                {
+                                                    <span class="badge bg-danger ms-1">18+</span>
+                                                }
+                                                <small class="text-muted">(@game.Genre)</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        @* Buttons *@
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Annuleren
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-lg me-1"></i>Wijzigingen Opslaan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
