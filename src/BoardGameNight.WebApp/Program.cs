@@ -15,13 +15,13 @@ builder.Services.AddControllersWithViews();
 
 // Configure Application DbContext (main database)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
+    options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("BoardGameNight.Infrastructure")));
 
 // Configure Identity DbContext (separate security database)
 builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
-    options.UseSqlServer(
+    options.UseSqlite(
         builder.Configuration.GetConnectionString("IdentityConnection"),
         b => b.MigrationsAssembly("BoardGameNight.Infrastructure")));
 
