@@ -13,3 +13,4 @@ C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNi
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Application\obj\Debug\net8.0\refint\BoardGameNight.Application.dll
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Application\obj\Debug\net8.0\BoardGameNight.Application.pdb
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Application\obj\Debug\net8.0\ref\BoardGameNight.Application.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Application\obj\Debug\net8.0\BoardGameNight.Application.sourcelink.json

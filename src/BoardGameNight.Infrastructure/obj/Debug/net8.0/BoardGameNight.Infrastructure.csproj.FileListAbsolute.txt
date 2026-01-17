@@ -17,3 +17,4 @@ C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNi
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Infrastructure\obj\Debug\net8.0\BoardGameNight.Infrastructure.pdb
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Infrastructure\obj\Debug\net8.0\BoardGameNight.Infrastructure.genruntimeconfig.cache
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Infrastructure\obj\Debug\net8.0\ref\BoardGameNight.Infrastructure.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.Infrastructure\obj\Debug\net8.0\BoardGameNight.Infrastructure.sourcelink.json

@@ -144,3 +144,4 @@ C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNi
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.WebApp\obj\Debug\net8.0\BoardGameNight.WebApp.pdb
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.WebApp\obj\Debug\net8.0\BoardGameNight.WebApp.genruntimeconfig.cache
 C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.WebApp\obj\Debug\net8.0\ref\BoardGameNight.WebApp.dll
+C:\Avans\jaar 2\periode 1\BoardGameNight-Complete\BoardGameNight\src\BoardGameNight.WebApp\obj\Debug\net8.0\BoardGameNight.WebApp.sourcelink.json
